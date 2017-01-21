@@ -1,9 +1,11 @@
 <?php
+
+namespace Core;
 require_once __DIR__ . '/../Helper/Utility.php';
+use Helper\Utility;
 
 class Core
 {
-
 	/**
 	 * Nome della request URI.
 	 * @var
@@ -15,7 +17,7 @@ class Core
 	 * @var array
 	 */
 	private $routes = [
-		['route' => '/^\/$/', 'controller' => 'IndexController', 'action' => 'showHomeAction']
+		['route' => '/^\/$/', 'controller' => 'IndexController', 'action' => 'showHomeAction', 'params' => []]
 	];
 
 	/**
@@ -31,12 +33,19 @@ class Core
 	private $action;
 
 	/**
+	 * Array dei parametri che una rotta può passare all'action del
+	 * controller associato.
+	 * @var
+	 */
+	private $params;
+
+	/**
 	 * Core constructor.
 	 * @param $requestURI
 	 */
-	public function __construct(string $requestURI)
+	public function __construct()
 	{
-		$this->requestURI = $requestURI;
+		$this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
 	}
 
 	/**
@@ -49,6 +58,7 @@ class Core
 			if (preg_match($route['route'], $this->requestURI)) {
 				$this->controller = $route['controller'];
 				$this->action = $route['action'];
+				$this->params = !empty($route['params']) ? $route['params'] : [];
 				return;
 			}
 		}
@@ -60,10 +70,18 @@ class Core
 	 * Richiama la action del controller corrispondente alla URI ricercata.
 	 * Il metodo deve essere richiamato dopo findRoute.
 	 */
-	public function start()
+	public function executeAction()
 	{
 		require_once(__DIR__ . '/../Controller/' . $this->controller . '.php');
-		eval($this->controller . '::' . $this->action . '();');
+		eval('$result = \Controller\\' . $this->controller . '::' . $this->action . '($this->params);');
+
+		!empty($result) ? $this->resolveViewsAction($result) : Utility::set404();
+	}
+
+	private function resolveViewsAction(array $viewsList){
+		foreach($viewsList as $view){
+			require_once __DIR__ . '/../Views/' . $view;
+		}
 	}
 
 	/**
@@ -71,7 +89,7 @@ class Core
 	 */
 	public function getRequestURI()
 	{
-		!empty($this->requestURI) ? $this->requestURI : false;
+		return !empty($this->requestURI) ? $this->requestURI : false;
 	}
 
 	/**
@@ -79,14 +97,30 @@ class Core
 	 */
 	public function getController()
 	{
-		!empty($this->controller) ? $this->controller : false;
+		return !empty($this->controller) ? $this->controller : false;
+	}
+
+	/**
+	 * Restituisce il nome del controller
+	 */
+	public function getParams()
+	{
+		return !empty($this->params) ? $this->params : false;
 	}
 
 	/**
 	 * Restituisce il nome della action
 	 */
+
 	public function getAction()
 	{
-		!empty($this->action) ? $this->action : false;
+		return !empty($this->action) ? $this->action : false;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAllRoutes(): array{
+		return $this->routes;
 	}
 }

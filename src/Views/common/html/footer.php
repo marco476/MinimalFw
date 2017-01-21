@@ -1,0 +1,1 @@
+sono footer common<br>

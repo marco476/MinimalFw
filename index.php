@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/Core/Core.php';
+require_once __DIR__ . '/src/Core/Core.php';
+use Core\Core;
 
-$core = new Core($_SERVER['REQUEST_URI']);
+$core = new Core();
 $core->findRoute();
-$core->start();
+$core->executeAction();
