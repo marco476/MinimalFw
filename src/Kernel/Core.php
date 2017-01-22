@@ -6,52 +6,53 @@ use Providers\Cache\FilesystemCache;
 
 class Core
 {
-    /**
-     * Nome della request URI.
-     */
+    //Nome della request URI.
     private $requestURI;
-
-    /**
-     * Lista di rotte da poter matchare.
-     */
-    private $routes = [
-        //Homepage
-        [
-        'route' => '/^\/$/',
-        'controller' => 'IndexController',
-        'action' => 'showHomeAction',
-        'params' => []
-        ]
-    ];
+    
+    //Lista di rotte da poter matchare.
+    private $routes = [];
 
     //Nome della rotta matchata.
     private $route;
 
-    /**
-     * Nome del controller matchato.
-     */
+    //Nome del controller matchato.
     private $controller;
 
-    /**
-     * Nome della action del controller matchato.
-     */
+    //Nome della action del controller matchato.
     private $action;
 
-    /**
-     * Array dei parametri che una rotta può passare all'action del
-     * controller associato.
-     */
+    /* Array dei parametri che una rotta può passare all'action del
+       controller associato. */
     private $params;
 
-    /**
-     * Core constructor.
-     */
+    //Costruttore
     public function __construct(bool $cache = false)
     {
         $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
 
         if ($cache) {
             $this->filesystemCacheIstance = FilesystemCache::getIstance();
+            if ($this->filesystemCacheIstance->get('rotte')) {
+                $this->routes = LIST_ROUTES;
+            }
+        }
+    }
+
+    //Setta le rotte implementate.
+    public function setRoutes(array $routes)
+    {
+        if (!empty($this->routes)) {
+            return;
+        }
+
+        foreach ($routes as $singleRoute) {
+            if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
+                $this->routes[] = $singleRoute;
+            }
+        }
+
+        if (isset($this->filesystemCacheIstance)) {
+            $this->filesystemCacheIstance->set('rotte', var_export($this->routes, true), 'data', 'LIST_ROUTES');
         }
     }
 
@@ -61,10 +62,16 @@ class Core
      */
     public function findRoute()
     {
+        if (empty($this->routes)) {
+            trigger_error('Non è stata settata alcuna rotta, o non sono stati settati i parametri obbligatori per ciascuna di essa.', E_USER_ERROR);
+        }
+
         foreach ($this->routes as $route) {
             if (preg_match($route['route'], $this->requestURI)) {
-                if (isset($this->filesystemCacheIstance) && $this->filesystemCacheIstance->get(md5($route['route']))) {
-                    exit();
+                if (isset($this->filesystemCacheIstance)) {
+                    if ($this->filesystemCacheIstance->get($route['route'])) {
+                        exit();
+                    }
                 }
 
                 $this->route = $route['route'];
@@ -88,7 +95,7 @@ class Core
         eval('$result = \Controller\\' . $this->controller . '::' . $this->action . '($this->params);');
 
         !empty($result) ?
-            $this->resolveViewsAction($result) : 
+            $this->resolveViewsAction($result) :
                 trigger_error('Il controller ha restituito un array vuoto.', E_USER_ERROR);
     }
 
@@ -101,7 +108,7 @@ class Core
         }
         
         if (isset($this->filesystemCacheIstance)) {
-            $this->filesystemCacheIstance->set(md5($this->route), ob_get_contents());
+            $this->filesystemCacheIstance->set($this->route, ob_get_contents());
         }
 
         ob_end_flush();

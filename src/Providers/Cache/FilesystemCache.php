@@ -8,6 +8,7 @@ class FilesystemCache implements CacheInterface
     //Attuazione del Singleton
     static private $istance = null;
 
+    //Elenco di chiavi settabili globalmente con setGlobal
     static private $definableOptions = [
         'cacheDirFromRoot', //Cartella di cache
     ];
@@ -37,11 +38,12 @@ class FilesystemCache implements CacheInterface
     }
 
     //Setta la cache sul filesystem.
-    //Ritorna true se il file di cache è stato creato.
-    //Ritorna false nel caso opposto.
-    public function set(string $key, $data): bool
+    public function set(string $key, $data, $format = null, $nameDefine = null): bool
     {
-        if ($this->cacheDirFromRoot && $fullPathFile = fopen($this->cacheDirFromRoot . '/' . $key, 'w')) {
+        if ($this->cacheDirFromRoot && $fullPathFile = fopen($this->cacheDirFromRoot . '/' . md5($key), 'w')) {
+            if ($format == 'data' && $nameDefine) {
+                $data = "<?php\ndefine('{$nameDefine}',{$data});\n?>";
+            }
             fwrite($fullPathFile, $data);
             fclose($fullPathFile);
             return true;
@@ -51,12 +53,10 @@ class FilesystemCache implements CacheInterface
     }
 
     //Se esiste, prelevo la cache dal filesystem.
-    //Ritorna true se la cache è stata prelevata.
-    //Ritorna false nel caso opposto.
     public function get(string $key): bool
     {
         if ($this->cacheDirFromRoot) {
-            $fullPathFile = $this->cacheDirFromRoot . '/' . $key;
+            $fullPathFile = $this->cacheDirFromRoot . '/' . md5($key);
             if (file_exists($fullPathFile)) {
                 require $fullPathFile;
                 return true;
