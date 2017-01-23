@@ -13,14 +13,23 @@ class FilesystemCache implements CacheInterface
         'cacheDirFromRoot', //Cartella di cache
     ];
 
+    //Contiene il path della cache
+    private $cacheDirFromRoot;
+
     //Ritorna l'istanza della classe
     public static function getIstance(): FilesystemCache
     {
         if (self::$istance === null) {
             self::$istance = new FilesystemCache();
+            self::$istance->init();
         }
 
         return self::$istance;
+    }
+
+    //Metodo di init richiamato alla creazione dell'istanza
+    private function init(){
+        $this->cacheDirFromRoot= $_SERVER["DOCUMENT_ROOT"] . '/cache';
     }
 
     //Setta le variabili globali nell'istanza della classe

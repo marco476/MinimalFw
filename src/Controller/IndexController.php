@@ -1,9 +1,7 @@
 <?php
-namespace Controller;
 
 /**
  * Class IndexController
- * @package Controller
  */
 class IndexController
 {
@@ -15,7 +13,6 @@ class IndexController
 	{
 		/**
 		 * Lista di pagine da includere secondo una gestione FIFO
-		 * Sono tutti implicitamente prelevati dalla cartella settata come Views
 		 */
 		return [
 			'common/html/open-page.html',
