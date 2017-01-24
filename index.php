@@ -6,9 +6,13 @@ use Providers\Cache\FilesystemCache;
 
 FilesystemCache::setGlobal(['cacheDirFromRoot' => $_SERVER["DOCUMENT_ROOT"] . '/cache']);
 
-$kernel = new Kernel(false);
+$kernel = new Kernel();
 
-$kernel->setGlobal(['controllerDirFromRoot' => __DIR__ . '/src/Controller']);
+$kernel->setGlobal([
+        'controllerDirFromRoot' => __DIR__ . '/src/Controller',
+        'viewsDirFromRoot' => __DIR__ . '/src/Views'
+        ]);
+
 $kernel->setRoutes([
         'homepage' => [
             'route' => '/^\/$/',
@@ -22,5 +26,4 @@ if ($kernel->findRoute()) {
     $kernel->executeAction();
 } else {
     http_response_code(404);
-    //require_once 'page404.html';
 }

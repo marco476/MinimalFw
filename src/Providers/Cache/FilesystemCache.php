@@ -28,7 +28,8 @@ class FilesystemCache implements CacheInterface
     }
 
     //Metodo di init richiamato alla creazione dell'istanza
-    private function init(){
+    private function init()
+    {
         $this->cacheDirFromRoot= $_SERVER["DOCUMENT_ROOT"] . '/cache';
     }
 
@@ -51,7 +52,7 @@ class FilesystemCache implements CacheInterface
     {
         if ($this->cacheDirFromRoot && $fullPathFile = fopen($this->cacheDirFromRoot . '/' . md5($key), 'w')) {
             if ($format == 'data' && $nameDefine) {
-                $data = "<?php\ndefine('{$nameDefine}',{$data});\n?>";
+                $data = "<?php\ndefine('" . $nameDefine ."'," . var_export($data, true) . ");\n?>";
             }
             fwrite($fullPathFile, $data);
             fclose($fullPathFile);
@@ -73,5 +74,18 @@ class FilesystemCache implements CacheInterface
         }
 
         return false;
+    }
+
+    //Restituisce la directory della cache
+    public function getCacheDir()
+    {
+        return !empty($this->cacheDirFromRoot) ? $this->cacheDirFromRoot : false;
+    }
+
+    //Restituisce un array contenente tutte le possibili opzioni
+    //settabili globalmente mediante setGlobal
+    public function getDefinableOptions(): array
+    {
+        return $this->definableOptions;
     }
 }

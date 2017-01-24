@@ -1,0 +1,20 @@
+{
+    "name": "minimalfw/minimalfw",
+    "type": "library",
+    "description": "Minimal framework per piccoli progetti",
+    "keywords": ["minimal","minimal framework"],
+    
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marco Cante",
+            "email": "marco.cante.081@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0"
+    },
+     "autoload": {
+        "psr-4": {"": "src/"}
+    }
+}

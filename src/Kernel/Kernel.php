@@ -2,17 +2,11 @@
 namespace Kernel;
 
 require_once __DIR__ . '/Core.php';
-require_once __DIR__ . '/../Providers/Cache/FilesystemCache.php';
-
-use Providers\Cache\FilesystemCache;
 
 class Kernel extends Core
 {
     //Nome della request URI.
     private $requestURI;
-    
-    //Lista di rotte da poter matchare.
-    private $routes = [];
 
     //Nome della rotta matchata.
     private $route;
@@ -30,33 +24,8 @@ class Kernel extends Core
     //Costruttore
     public function __construct(bool $cache = false)
     {
-        parent::__construct(); //Richiamo prima il costruttore del padre..
+        parent::__construct($cache); //Richiamo prima il costruttore padre
         $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-
-        if ($cache) {
-            $this->filesystemCacheIstance = FilesystemCache::getIstance();
-            if ($this->filesystemCacheIstance->get('rotte')) {
-                $this->routes = LIST_ROUTES;
-            }
-        }
-    }
-
-    //Setta le rotte implementate.
-    public function setRoutes(array $routes)
-    {
-        if (!empty($this->routes) || empty($routes)) {
-            return;
-        }
-
-        foreach ($routes as $singleRoute) {
-            if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
-                $this->routes[] = $singleRoute;
-            }
-        }
-
-        if (isset($this->filesystemCacheIstance)) {
-            $this->filesystemCacheIstance->set('rotte', var_export($this->routes, true), 'data', 'LIST_ROUTES');
-        }
     }
 
      //Cerca se la URI ricercata è tra le rotte previste.
@@ -106,7 +75,7 @@ class Kernel extends Core
         ob_start();
 
         foreach ($viewsList as $view) {
-            require_once __DIR__ . '/../Views/' . $view;
+            require_once $this->viewsDirFromRoot . '/' . $view;
         }
         
         if (isset($this->filesystemCacheIstance)) {
@@ -117,7 +86,7 @@ class Kernel extends Core
     }
 
     //Restuisce il nome della Request URI.
-    public function getRequestURI()
+    public function getRequestURI(): string
     {
         return $this->requestURI;
     }
@@ -144,11 +113,5 @@ class Kernel extends Core
     public function getRoute()
     {
         return !empty($this->route) ? $this->route : false;
-    }
-
-    //Ritorna tutte le rotte impostate.
-    public function getAllRoutes(): array
-    {
-        return $this->routes;
     }
 }
