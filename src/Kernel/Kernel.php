@@ -1,8 +1,6 @@
 <?php
 namespace Kernel;
 
-require_once __DIR__ . '/Core.php';
-
 class Kernel extends Core
 {
     //Nome della request URI.

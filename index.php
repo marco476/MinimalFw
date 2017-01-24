@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/src/Kernel/Kernel.php';
-require_once __DIR__ . '/src/Providers/Cache/FilesystemCache.php';
+require_once __DIR__ . '/vendor/autoload.php';
+
 use Kernel\Kernel;
 use Providers\Cache\FilesystemCache;
 
@@ -12,7 +12,7 @@ $kernel->setGlobal([
         'controllerDirFromRoot' => __DIR__ . '/src/Controller',
         'viewsDirFromRoot' => __DIR__ . '/src/Views'
         ]);
-
+        
 $kernel->setRoutes([
         'homepage' => [
             'route' => '/^\/$/',

@@ -1,8 +1,6 @@
 <?php
 namespace Providers\Cache;
 
-require_once __DIR__ . '/CacheInterface.php';
-
 class FilesystemCache implements CacheInterface
 {
     //Attuazione del Singleton

@@ -1,7 +1,6 @@
 <?php
 namespace Kernel;
 
-require_once __DIR__ . '/../Providers/Cache/FilesystemCache.php';
 use Providers\Cache\FilesystemCache;
 
 abstract class Core

@@ -1,3 +1,5 @@
 /cache/*
 /.idea/
 /logs/
+/vendor
+/composer.lock
