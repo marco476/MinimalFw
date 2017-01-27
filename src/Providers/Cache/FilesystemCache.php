@@ -28,7 +28,7 @@ class FilesystemCache implements CacheInterface
     //Metodo di init richiamato alla creazione dell'istanza
     private function init()
     {
-        $this->cacheDirFromRoot= $_SERVER["DOCUMENT_ROOT"] . '/cache';
+        $this->cacheDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/cache';
     }
 
     //Setta le variabili globali nell'istanza della classe
