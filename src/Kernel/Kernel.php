@@ -45,7 +45,7 @@ class Kernel extends Core
                 $this->route = $route['route'];
                 $this->controller = $route['controller'];
                 $this->action = $route['action'];
-                $this->params = is_array($route['params']) && !empty($route['params']) ? $route['params'] : [];
+                $this->params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
                 return true;
             }
         }
