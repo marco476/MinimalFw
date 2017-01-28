@@ -11,6 +11,7 @@
             "email": "marco.cante.081@gmail.com"
         }
     ],
+    "minimum-stability": "stable",
     "require": {
         "php": ">=7.0.0"
     },
