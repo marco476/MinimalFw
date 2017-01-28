@@ -18,14 +18,11 @@ Configurare il framework è semplicissimo :
 <?php
 //Carico Autoloader di Composer
 require_once __DIR__ . '/vendor/autoload.php';
-
 use Kernel\Kernel;
 
 $kernel = new Kernel();
 
 $kernel->setGlobal([
-        //Directory dei Controller
-        'controllerDirFromRoot' => __DIR__ . '/src/Controller',
         //Directory delle View
         'viewsDirFromRoot' => __DIR__ . '/src/Views'
         ]);
@@ -46,11 +43,10 @@ if ($kernel->findRoute()) {
 }
 ```
 
-Il Kernel è il cuore del sistema. Con il metodo **setGlobal** del *Kernel* avete la possibilità di definire  la cartella dei *Controller* e delle *View*, partendo dalla root del progetto.
-Di default, qualora non impostate, esse saranno :
+Il Kernel è il cuore del sistema. Con il metodo **setGlobal** del *Kernel* avete la possibilità di definire la cartella delle *View*, partendo dalla root del progetto.I controller, invece, possono essere definiti in qualsiasi file, purchè rispettino le direttive PSR0 e PSR4, e facciano quindi parte dello stesso namespace *Controller*.
+Di default, qualora non impostato, il path delle *View* è il seguente :
 
 ```PHP
-controllerDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Controller';
 viewsDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Views';
 ```
 
@@ -83,6 +79,7 @@ Il nome del file contenente il Controller deve essere uguale al nome della class
 
 ```PHP
 <?php
+namespace Controller;
 
 //In src/Controller/IndexController.php 
 class IndexController

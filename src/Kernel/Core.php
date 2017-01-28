@@ -10,12 +10,8 @@ abstract class Core
 
     //Elenco di chiavi settabili globalmente con setGlobal
     private $definableOptions = [
-        'controllerDirFromRoot', //Cartella dei controller
         'viewsDirFromRoot', //Cartella delle views
     ];
-
-    //Contiene il path dei controller
-    protected $controllerDirFromRoot;
 
     //Contiene il path delle views
     protected $viewsDirFromRoot;
@@ -23,7 +19,6 @@ abstract class Core
     //Costruttore
     public function __construct(bool $cache)
     {
-        $this->controllerDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Controller';
         $this->viewsDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Views';
 
         if ($cache) {
