@@ -1,5 +1,7 @@
-/cache/*
-/.idea/
-/logs/
-/vendor
-/composer.lock
+vendor/
+cache/*
+.idea/
+logs/
+composer.lock
+src/Controller/
+src/Views/

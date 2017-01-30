@@ -1,23 +1,24 @@
 <?php
 namespace Kernel;
 
+use Helper\ErrorHelper;
+
 class Kernel extends Core
 {
     //Nome della request URI.
-    private $requestURI;
+    protected $requestURI;
 
     //Nome della rotta matchata.
-    private $route;
+    protected $route;
 
-    //Nome del controller matchato.
-    private $controller;
+    //Istanza del controller matchato.
+    protected $controller;
 
     //Nome della action del controller matchato.
-    private $action;
+    protected $action;
 
-    //Array dei parametri che una rotta può passare all'action del
-    //controller associato.
-    private $params;
+    //Array dei parametri per la action
+    protected $params;
 
     //Costruttore
     public function __construct(bool $cache = false)
@@ -31,7 +32,7 @@ class Kernel extends Core
     public function findRoute()
     {
         if (empty($this->routes)) {
-            trigger_error('Non è stata settata alcuna rotta, o non sono stati settati i parametri obbligatori per ciascuna di essa.', E_USER_ERROR);
+            trigger_error(ErrorHelper::EMPTY_OR_ERROR_ROUTER, E_USER_ERROR);
         }
 
         foreach ($this->routes as $route) {
@@ -43,7 +44,7 @@ class Kernel extends Core
                 }
 
                 $this->route = $route['route'];
-                $this->controller = $route['controller'];
+                $this->controller = '\\Controller\\' . $route['controller'];
                 $this->action = $route['action'];
                 $this->params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
                 return true;
@@ -57,18 +58,20 @@ class Kernel extends Core
     public function executeAction()
     {
         if (empty($this->controller) || empty($this->action)) {
-            trigger_error('Per eseguire una action devi settare il nome del controller e della action. Sei certo di aver eseguito prima il findRoute?', E_USER_ERROR);
+            trigger_error(ErrorHelper::CONTROLLER_OR_ACTION_NOT_FOUND, E_USER_ERROR);
         }
 
-        require_once($this->controllerDirFromRoot . '/' . $this->controller . '.php');
-        eval('$result = $this->controller::' . $this->action . '($this->params);');
+        $controllerIstance = new $this->controller;
+        $result = $controllerIstance->{$this->action}($this->params);
 
         !empty($result) ?
             $this->resolveViewsAction($result) :
-                trigger_error('Il controller ha restituito un array vuoto.', E_USER_ERROR);
+                trigger_error(ErrorHelper::CONTROLLER_RETURN_EMPTY_ARRAY, E_USER_ERROR);
     }
 
-    private function resolveViewsAction(array $viewsList)
+    //Richiama le Views restituite dalla action.
+    //Esso vengono include mediante una gestione FIFO.
+    protected function resolveViewsAction(array $viewsList)
     {
         ob_start();
 
