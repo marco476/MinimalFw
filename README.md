@@ -16,20 +16,14 @@ Configurare il framework è semplicissimo :
 
 ```PHP
 <?php
-//Carico Autoloader di Composer
-require_once __DIR__ . '/vendor/autoload.php';
+//web/index.php
 
+require_once __DIR__ . '/../vendor/autoload.php';
 use Kernel\Kernel;
 
 $kernel = new Kernel();
 
-$kernel->setGlobal([
-        //Directory dei Controller
-        'controllerDirFromRoot' => __DIR__ . '/src/Controller',
-        //Directory delle View
-        'viewsDirFromRoot' => __DIR__ . '/src/Views'
-        ]);
-        
+//Setta le tue rotte!
 $kernel->setRoutes([
         'homepage' => [
             'route' => '/^\/$/',
@@ -42,16 +36,8 @@ $kernel->setRoutes([
 if ($kernel->findRoute()) {
     $kernel->executeAction();
 } else {
-    http_response_code(404);
+    //Gestisci il 404!
 }
-```
-
-Il Kernel è il cuore del sistema. Con il metodo **setGlobal** del *Kernel* avete la possibilità di definire  la cartella dei *Controller* e delle *View*, partendo dalla root del progetto.
-Di default, qualora non impostate, esse saranno :
-
-```PHP
-controllerDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Controller';
-viewsDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Views';
 ```
 
 Il metodo **setRoutes** del *Kernel* accetta un array di rotte con cui intendiamo effettuare il match con la URI. Esso ha il seguente formato:
@@ -73,18 +59,22 @@ $kernel->setRoutes([
 ]);
 ```
 
-Il metodo **findRoute** del *Kernel* restituisce true se è stato effettuato il match della URI con una delle Regular Expression definite nel settaggio delle rotte. False nel caso opposto.
+Il metodo **findRoute** del *Kernel* restituisce true se è stato effettuato il match della URI con una delle Regular Expression definite. False nel caso opposto.
 Qualora l'esito sia positivo, è possibile richiamare il metodo **executeAction** del *Kernel* che richiamerà il metodo del Controller associato alla rotta con cui è stato effettuato il match.
 
 ## Controller e View
 
-Tutti i controller vanno inseriti nella directory indicata in **controllerDirFromRoot** (vedere *Configurazioni*).
-Il nome del file contenente il Controller deve essere uguale al nome della classe ivi contenuta.
+Tutti i controller vanno inseriti in **src/Controller**, e devono seguire le regole *PSR-4*.
+Tutti le views, invece, vanno inserite in **src/Views**.
+
+Ecco un esempio per la creazione di un Controller:
 
 ```PHP
 <?php
+// src/Controller/IndexController.php
 
-//In src/Controller/IndexController.php 
+namespace Controller;
+
 class IndexController
 {
     //$params indica l'array di parametri settati nella definizione della rotta
@@ -102,7 +92,7 @@ class IndexController
 }
 ```
 
-Ogni controller deve restituire un array con il nome dei file da includere secondo l'ordine di definizione. Nel nostro esempio, *common/html/open-page.html* sarà il primo e *common/html/close-page.html* l'ultimo. Il path definito per ogni file viene ricercato all'interno della directory impostata in **viewsDirFromRoot** (vedere *Configurazione*).
+Ogni controller deve restituire un array con il nome dei file da includere secondo l'ordine di definizione. Nel nostro esempio, *common/html/open-page.html* sarà il primo e *common/html/close-page.html* l'ultimo.
 
 ## Cache
 
@@ -194,6 +184,6 @@ Con Apache, potete farlo in modo molto semplice:
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    RewriteRule ^([a-zA-Z0-9])+$ /index.php [L]
+    RewriteRule ^([a-zA-Z0-9])+$ /web/index.php [L]
 </IfModule>
 ```
