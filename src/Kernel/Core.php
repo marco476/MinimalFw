@@ -1,49 +1,36 @@
 <?php
 namespace Kernel;
 
-use Providers\Cache\FilesystemCache;
+use Kernel\CoreInterface;
 
-abstract class Core
+abstract class Core implements CoreInterface
 {
-    //Lista di rotte da poter matchare.
+    //List of all routes that can match with URI.
     protected $routes = [];
 
     protected $viewsDirFromRoot;
 
-    //Costruttore
-    public function __construct(bool $cache)
+    //Core Costruct
+    public function __construct()
     {
          $this->viewsDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Views';
-
-        if ($cache) {
-            $this->filesystemCacheIstance = FilesystemCache::getIstance();
-            if ($this->filesystemCacheIstance->get('rotte')) {
-                $this->routes = LIST_ROUTES;
-            }
-        }
     }
 
     //Setta le rotte implementate.
     public function setRoutes(array $routes)
     {
-        if (!empty($this->routes) || empty($routes)) {
-            return;
-        }
-
         foreach ($routes as $singleRoute) {
             if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
                 $this->routes[] = $singleRoute;
             }
         }
-
-        if (isset($this->filesystemCacheIstance)) {
-            $this->filesystemCacheIstance->set('rotte', $this->routes, 'data', 'LIST_ROUTES');
-        }
     }
 
-    //Ritorna tutte le rotte settate.
-    public function getAllRoutes(): array
+    //Return an istance of controller $controllerName
+    protected function getControllerIstance(string $controllerName)
     {
-        return $this->routes;
+        $fullControllerName = '\\Controller\\' . $controllerName;
+
+        return new $fullControllerName;
     }
 }
