@@ -31,7 +31,7 @@ class Kernel extends Core
     //Execute the action of route matched.
     protected function executeAction($route)
     {
-        $controller = $this->getControllerInstance($route['controller']);
+        $controllerIstance = $this->getControllerIstance($route['controller']);
         $action = $route['action'];
         $params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
 
@@ -40,6 +40,14 @@ class Kernel extends Core
         !empty($result) ?
             $this->requireViews($result) :
                 ErrorHelper::setError(ErrorHelper::CONTROLLER_RETURN_EMPTY_ARRAY, ErrorHelper::FATAL);
+    }
+
+     //Return an istance of controller $controllerName
+    protected function getControllerIstance(string $controllerName)
+    {
+        $fullControllerName = '\\Controller\\' . $controllerName;
+
+        return new $fullControllerName;
     }
 
     //Require views returned from action by FIFO running.

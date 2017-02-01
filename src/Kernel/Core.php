@@ -25,12 +25,4 @@ abstract class Core implements CoreInterface
             }
         }
     }
-
-    //Return an istance of controller $controllerName
-    protected function getControllerIstance(string $controllerName)
-    {
-        $fullControllerName = '\\Controller\\' . $controllerName;
-
-        return new $fullControllerName;
-    }
 }
