@@ -1,14 +1,9 @@
 <?php
 namespace Providers\Cache;
 
-class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
+class CacheItemPool implements CacheItemPoolInterface
 {
-    static protected $queueSaved;
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    static private $queueSaved;
 
     public function getItem($key): CacheItem
     {
@@ -16,7 +11,7 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
         $cacheItem->setKey($key);
 
         if ($this->hasItem($key)) {
-            include $this->getCacheDir() . $key;
+            include CacheGlobal::getCacheDir() . $key;
             $cacheItem->set($item);
         }
 
@@ -36,14 +31,12 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
 
     public function hasItem($key)
     {
-        return file_exists($this->getCacheDir() . $key);
+        return file_exists(CacheGlobal::getCacheDir() . $key);
     }
 
     public function clear()
     {
-        $files = glob($this->getCacheDir() . '*');
-
-        if (empty($files)) {
+        if (empty($files = glob(CacheGlobal::getCacheDir() . '*'))) {
             return false;
         }
 
@@ -62,7 +55,7 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
             return false;
         }
 
-        return unlink($this->getCacheDir() . $key);
+        return unlink(CacheGlobal::getCacheDir() . $key);
     }
 
     public function deleteItems(array $keys)
@@ -78,9 +71,13 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
 
     public function save(CacheItemInterface $item)
     {
+        if (!$this->isItemValidForSave($item)) {
+            return false;
+        }
+
         $toWrite = '<?php $item=' . var_export($item->get(), true) . '; ?>';
 
-        return ($fileCache = fopen($this->getCacheDir() . $item->getKey(), 'w')) &&
+        return ($fileCache = fopen(CacheGlobal::getCacheDir() . $item->getKey(), 'w')) &&
                 fwrite($fileCache, $toWrite) &&
                 fclose($fileCache);
     }
@@ -88,6 +85,11 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
     public function saveDeferred(CacheItemInterface $item)
     {
         return self::$queueSaved[] = $item;
+    }
+
+    public function getQueueSaved()
+    {
+        return self::$queueSaved;
     }
 
     public function commit()
@@ -99,5 +101,10 @@ class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
         }
 
         return true;
+    }
+
+    protected function isItemValidForSave(CacheItemInterface $item)
+    {
+        return !$item->isKeyEmpty() && !$item->isValueEmpty();
     }
 }

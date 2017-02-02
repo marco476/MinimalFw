@@ -1,7 +1,7 @@
 <?php
 namespace Providers\Cache;
 
-class CacheItem extends CacheGlobal implements CacheItemInterface
+class CacheItem implements CacheItemInterface
 {
     protected $key = null;
     protected $value = null;
@@ -18,10 +18,11 @@ class CacheItem extends CacheGlobal implements CacheItemInterface
 
     public function isHit()
     {
-        return file_exists($this->getCacheDir() . $this->getKey());
+        return !$this->isKeyEmpty() && file_exists(CacheGlobal::getCacheDir() . $this->key);
     }
 
-    public function setKey($key){
+    public function setKey($key)
+    {
         $this->key = $key;
     }
 
@@ -36,5 +37,15 @@ class CacheItem extends CacheGlobal implements CacheItemInterface
 
     public function expiresAfter($time)
     {
+    }
+
+    public function isKeyEmpty()
+    {
+        return empty($this->key);
+    }
+
+    public function isValueEmpty()
+    {
+        return empty($this->value);
     }
 }

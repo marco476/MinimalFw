@@ -3,15 +3,15 @@ namespace Providers\Cache;
 
 abstract class CacheGlobal
 {
-    protected $cacheDir;
+    static private $cacheDir;
 
-    public function __construct()
+    //Return the path of cache
+    static public function getCacheDir()
     {
-        $this->cacheDir = $_SERVER["DOCUMENT_ROOT"] . '/../cache/';
-    }
+        if(self::$cacheDir === null){
+            self::$cacheDir = $_SERVER["DOCUMENT_ROOT"] . '/../cache/';
+        }
 
-    public function getCacheDir()
-    {
-        return $this->cacheDir;
+        return self::$cacheDir;
     }
 }
