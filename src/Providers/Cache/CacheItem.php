@@ -1,16 +1,10 @@
 <?php
 namespace Providers\Cache;
 
-class CacheItem implements CacheItemInterface
+class CacheItem extends CacheGlobal implements CacheItemInterface
 {
     protected $key = null;
     protected $value = null;
-
-    public function setData($key, $value)
-    {
-        $this->key = $key;
-        $this->value = $value;
-    }
 
     public function getKey()
     {
@@ -24,6 +18,11 @@ class CacheItem implements CacheItemInterface
 
     public function isHit()
     {
+        return file_exists($this->getCacheDir() . $this->getKey());
+    }
+
+    public function setKey($key){
+        $this->key = $key;
     }
 
     public function set($value)

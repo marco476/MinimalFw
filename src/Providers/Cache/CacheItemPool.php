@@ -1,22 +1,23 @@
 <?php
 namespace Providers\Cache;
 
-class CacheItemPool implements CacheItemPoolInterface
+class CacheItemPool extends CacheGlobal implements CacheItemPoolInterface
 {
-    protected $cacheDir;
+    static protected $queueSaved;
 
     public function __construct()
     {
-        $this->cacheDir = $_SERVER["DOCUMENT_ROOT"] . '/../cache/';
+        parent::__construct();
     }
 
     public function getItem($key): CacheItem
     {
         $cacheItem = new CacheItem();
+        $cacheItem->setKey($key);
 
         if ($this->hasItem($key)) {
-            require_once $this->cacheDir . $key;
-            $cacheItem->setData($key, $item);
+            include $this->getCacheDir() . $key;
+            $cacheItem->set($item);
         }
 
         return $cacheItem;
@@ -35,23 +36,21 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function hasItem($key)
     {
-        if (file_exists($this->cacheDir . $key)) {
-            return true;
-        }
-
-        return false;
+        return file_exists($this->getCacheDir() . $key);
     }
 
     public function clear()
     {
-        $files = glob($this->cacheDir . '*');
+        $files = glob($this->getCacheDir() . '*');
 
         if (empty($files)) {
             return false;
         }
 
         foreach ($files as $file) {
-            unlink($file);
+            if (!unlink($file)) {
+                return false;
+            }
         }
 
         return true;
@@ -59,21 +58,46 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function deleteItem($key)
     {
+        if (!$this->hasItem($key)) {
+            return false;
+        }
+
+        return unlink($this->getCacheDir() . $key);
     }
 
     public function deleteItems(array $keys)
     {
+        foreach ($keys as $key) {
+            if (!$this->deleteItem($key)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function save(CacheItemInterface $item)
     {
+        $toWrite = '<?php $item=' . var_export($item->get(), true) . '; ?>';
+
+        return ($fileCache = fopen($this->getCacheDir() . $item->getKey(), 'w')) &&
+                fwrite($fileCache, $toWrite) &&
+                fclose($fileCache);
     }
 
     public function saveDeferred(CacheItemInterface $item)
     {
+        return self::$queueSaved[] = $item;
     }
 
     public function commit()
     {
+        foreach (self::$queueSaved as $item) {
+            if (!$this->save($item)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
