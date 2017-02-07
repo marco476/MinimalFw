@@ -1,7 +1,7 @@
 <?php
 namespace Helper;
 
-class ErrorHelper extends ErrorHelperAbstract
+class ErrorHelper
 {
     public static function setError(string $error, $levelError)
     {

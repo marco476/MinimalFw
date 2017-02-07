@@ -1,29 +1,27 @@
-# MinimalFw - PHP Minimal Framework per piccoli progetti
+# MinimalFw - PHP performance-based framework
+MinimalFw is a small **PHP** performance-based framework for small projects. It work *without any third-library dependency*.
 
-Il Framework nasce dall'esigenza di creare in maniera veloce, sicura e rapida un sistema automatizzato performante in cui sviluppatore software di piccole dimensioni *senza dipendenze da altre librerie*.
+## Installation
 
-## Installazione
-
-Il Framework è installabile facilmente via Composer :
+You can install it with Composer:
 
 ```
 composer require minimalfw/minimalfw
 ```
 
-## Configurazione
+## Configuration
 
-Configurare il framework è semplicissimo :
+Configure your front-controller page (assumed *index.php*) it's extreme simple:
 
 ```PHP
 <?php
-//web/index.php
-
+//Into web/index.php
 require_once __DIR__ . '/../vendor/autoload.php';
 use Kernel\Kernel;
 
 $kernel = new Kernel();
 
-//Setta le tue rotte!
+//Set your routes!
 $kernel->setRoutes([
         'homepage' => [
             'route' => '/^\/$/',
@@ -33,41 +31,31 @@ $kernel->setRoutes([
         ]
 ]);
 
-if ($kernel->findRoute()) {
-    $kernel->executeAction();
-} else {
-    //Gestisci il 404!
-}
+$kernel->start();
 ```
-
-Il metodo **setRoutes** del *Kernel* accetta un array di rotte con cui intendiamo effettuare il match con la URI. Esso ha il seguente formato:
+The **setRoutes** Kernel's method accept an array of routes, that can be matched with an URI by regular expression setted.
+The format is here:
 
 ```PHP
 $kernel->setRoutes([
-        'NOME ROTTA' => [
-            'route' => '/REGULAR EXPRESSION/',
-            'controller' => 'CONTROLLER DA RICHIAMARE IN CASO DI MATCH',
-            'action' => 'ACTION DEL CONTROLLER DA RICHIAMARE IN CASO DI MATCH',
-            'params' => [] //Array di parametri passati al Controller
+        'ROUTE_1' => [
+            'route' => '/REGULAR EXPRESSION 1/',
+            'controller' => 'NAME CONTROLLER CALL AFTER MATCHED URI',
+            'action' => 'NAME ACTION (in Controller) CALL AFTER MATCHED URI',
+            'params' => [] //Array of extra parameters
         ],
-        'NOME ROTTA_2' => [
-            'route' => '/REGULAR EXPRESSION/',
-            'controller' => 'CONTROLLER DA RICHIAMARE IN CASO DI MATCH',
-            'action' => 'ACTION DEL CONTROLLER DA RICHIAMARE IN CASO DI MATCH',
-            'params' => [ 'mioNome' => 'Marco' ] //Array di parametri passati al Controller
+        'ROUTE_2' => [
+            ...
         ],
 ]);
 ```
 
-Il metodo **findRoute** del *Kernel* restituisce true se è stato effettuato il match della URI con una delle Regular Expression definite. False nel caso opposto.
-Qualora l'esito sia positivo, è possibile richiamare il metodo **executeAction** del *Kernel* che richiamerà il metodo del Controller associato alla rotta con cui è stato effettuato il match.
+## Controller and Views
 
-## Controller e View
+All *controller* MUST be insert in **src/Controller** and use *PSR-4* rules.
+All *views* MUST be insert in **src/Views**.
 
-Tutti i controller vanno inseriti in **src/Controller**, e devono seguire le regole *PSR-4*.
-Tutti le views, invece, vanno inserite in **src/Views**.
-
-Ecco un esempio per la creazione di un Controller:
+See an example for create a controller:
 
 ```PHP
 <?php
@@ -77,10 +65,9 @@ namespace Controller;
 
 class IndexController
 {
-    //$params indica l'array di parametri settati nella definizione della rotta
     public function showHomeAction(array $params): array
     {
-        //Lista di pagine da includere secondo una gestione FIFO
+        //Views included with FIFO approach
         return [
             'common/html/open-page.html',
             'homepage/html/head.php',
@@ -92,98 +79,45 @@ class IndexController
 }
 ```
 
-Ogni controller deve restituire un array con il nome dei file da includere secondo l'ordine di definizione. Nel nostro esempio, *common/html/open-page.html* sarà il primo e *common/html/close-page.html* l'ultimo.
+Every controller MUST return an array with name of views, that kernel will include with FIFO approach.
+In the last example, *common/html/open-page.html* will be the first include and *common/html/close-page.html* the last.
+For detail, see [PSR-4 documentation](http://www.php-fig.org/psr/psr-4/)
 
-## Cache
-
-MinimalFw prevede anche un efficiente gestore di cache sul filesystem, in grado di cachare **HTML e/o dati**.
+## Filesystem Cache
+The filesystem cache is quickly and simply, and is implemented with *PSR-6* directive.
+See an example:
 
 ```PHP
-<?php
-require_once __DIR__ . '/vendor/autoload.php';
-use Kernel\Kernel;
-use Providers\Cache\FilesystemCache;
+use \Providers\Cache\CacheItemPool;
 
-FilesystemCache::setGlobal([
-    //Directory della cache
-    'cacheDirFromRoot' => __DIR__ . '/cache'
-    ]);
+$itemPool = new CacheItemPool();
+$itemCache = $itemPool->getItem('myArray');
 
-//Abilito la cache html passando true al kernel!
-$kernel = new Kernel(true);
-        
-$kernel->setRoutes([
-        'homepage' => [
-            'route' => '/^\/$/',
-            'controller' => 'IndexController',
-            'action' => 'showHomeAction',
-            'params' => []
-        ]
-]);
-
-if ($kernel->findRoute()) {
-    $kernel->executeAction();
+if ($itemCache->isHit()) {
+    return $itemCache->get();
 } else {
-    http_response_code(404);
+    $value = array(
+        'name'      => 'Marco',
+        'friends'   => array('Paolo','Luca')
+    );
+
+    $itemCache->set($value);
+    $itemPool->save($itemCache);
+
+    return $value;
 }
 ```
 
-La classe **FilesystemCache** è un *Singleton*. Possiamo definire la directory della cache usando il metodo statico **setGlobal** della classe **FilesystemCache**. Se non definita, la directory di default sarà:
-
-```
-cacheDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/cache';
-```
-
-**Attenzione : è necessario dare i permessi di lettura e scrittura alla cartella di cache!**.
-
-Successivamente, possiamo decidere se cachare sul filesystem l'intero HTML generato, oppure solamenti i dati.
-In particolare, se passiamo true come primo argomento della classe *Kernel*, verranno salvate:
-
-* Tutte le rotte definite nel **setRoutes**.
-* HTML generato dalle rotte in cui è stato effettuato un match.
-
-Se intendiamo salvare dei dati, o qualsiasi altra cosa ci venga in mente, possiamo farci ritornare l'istanza di **FilesystemCache** ed usare le sue funzioni di **set** e di **get**.
-Mentre la funziona di **get** è identica per HTML e dati, accettano solo il nome della chiave come argomento, la funziona di **set** varia leggermente. Ecco un esempio di salvataggio HTML:
-
-```PHP
-$cache = FilesystemCache::getIstance();
-
-if ($cache->get('HTMLHomepage')) {
-    exit(); //E' ritornato tutto l'HTML. Posso anche uscire!
-} else {
-    $htmlHomePage = ...
-    ...
-    ...
-    $cache->set('HTMLHomepage', $htmlHomePage);
-}
-```
-
-Per il salvataggio HTML il **set** è semplicissimo: ci basta settare il nome della chiave come primo argomento, e passare l'interno HTML come secondo argomento.
-Leggermente differente è il salvataggio dei dati. Ecco un esempio:
-
-```PHP
-$cache = FilesystemCache::getIstance();
-
-if ($cache->get('datiHomePage')) {
-    $datiHomepage = DATI_HOME_PAGE;
-} else {
-    $datiHomepage = ...
-    ...
-    ...
-    $cache->set('datiHomePage', $datiHomepage, 'data', 'DATI_HOME_PAGE');
-}
-```
-
-Per il salvataggio dei dati, il **set** prevede il nome della chiave come primo argomento, i dati da salvare come secondo argomento, la stringa *data* come terzo argomento, ed il nome della costante che verrà creata quando verrà effettuato il **get** della medesima chiave.
+For detail, see [PSR-6 documentation](http://www.php-fig.org/psr/psr-6/)
 
 ## SERVER WEB
-Per permettere a tutte le rotte di "passare" nel vostro index.php (o qualsiasi altro file definito come Front Controller) avete bisogno di cambiare le configurazioni del vostro Web Server.
-Con Apache, potete farlo in modo molto semplice:
+For enable the front-controller and redirect all URL on it, you must change your web server's configure.
+With Apache, you can use a *mod_rewrite* module for rewrite all URL and redirect in your front-controller:
 
 ```
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    RewriteRule ^([a-zA-Z0-9])+$ /web/index.php [L]
+    RewriteRule ^(.*)$ /web/index.php [L]
 </IfModule>
 ```

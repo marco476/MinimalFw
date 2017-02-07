@@ -1,10 +1,13 @@
 <?php
 namespace Providers\Cache;
 
+use \Helper\DateHelper;
+
 class CacheItem implements CacheItemInterface
 {
     protected $key = null;
     protected $value = null;
+    protected $expires = null;
 
     public function getKey()
     {
@@ -31,12 +34,21 @@ class CacheItem implements CacheItemInterface
         $this->value = $value;
     }
 
-    public function expiresAt($expiration)
+    public function expiresAt(\DateTime $expiration)
     {
+        return DateHelper::isDateInFuture($expiration) && $this->expires = $expiration->getTimestamp();
     }
 
-    public function expiresAfter($time)
+    public function expiresAfter(string $dateIntervalString)
     {
+        $futureDate = date_create()->add(\DateInterval::createFromDateString($dateIntervalString));
+
+        return DateHelper::isDateInFuture($futureDate) && $this->expires = $futureDate->getTimestamp();
+    }
+
+    public function getExpires()
+    {
+        return $this->expires;
     }
 
     public function isKeyEmpty()

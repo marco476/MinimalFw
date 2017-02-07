@@ -3,7 +3,7 @@ namespace Providers\Cache;
 
 class CacheItemPool implements CacheItemPoolInterface
 {
-    static private $queueSaved;
+    protected $queueSaved = array();
 
     public function getItem($key): CacheItem
     {
@@ -11,8 +11,7 @@ class CacheItemPool implements CacheItemPoolInterface
         $cacheItem->setKey($key);
 
         if ($this->hasItem($key)) {
-            include CacheGlobal::getCacheDir() . $key;
-            $cacheItem->set($item);
+            $this->initializeItem($cacheItem);
         }
 
         return $cacheItem;
@@ -51,11 +50,7 @@ class CacheItemPool implements CacheItemPoolInterface
 
     public function deleteItem($key)
     {
-        if (!$this->hasItem($key)) {
-            return false;
-        }
-
-        return unlink(CacheGlobal::getCacheDir() . $key);
+        return $this->hasItem($key) && unlink(CacheGlobal::getCacheDir() . $key);
     }
 
     public function deleteItems(array $keys)
@@ -69,33 +64,37 @@ class CacheItemPool implements CacheItemPoolInterface
         return true;
     }
 
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $cacheItem)
     {
-        if (!$this->isItemValidForSave($item)) {
+        if (!$this->isItemValidForSave($cacheItem)) {
             return false;
         }
 
-        $toWrite = '<?php $item=' . var_export($item->get(), true) . '; ?>';
+        $toWrite = '<?php $item=array(\'value\' => ' . var_export($cacheItem->get(), true) . ', \'expire\' => ' . var_export($cacheItem->getExpires(), true) . '); ?>';
 
-        return ($fileCache = fopen(CacheGlobal::getCacheDir() . $item->getKey(), 'w')) &&
+        return ($fileCache = fopen(CacheGlobal::getCacheDir() . $cacheItem->getKey(), 'w')) &&
                 fwrite($fileCache, $toWrite) &&
                 fclose($fileCache);
     }
 
-    public function saveDeferred(CacheItemInterface $item)
+    public function saveDeferred(CacheItemInterface $cacheItem)
     {
-        return self::$queueSaved[] = $item;
+        return $this->queueSaved[] = $cacheItem;
     }
 
     public function getQueueSaved()
     {
-        return self::$queueSaved;
+        return $this->queueSaved;
     }
 
     public function commit()
     {
-        foreach (self::$queueSaved as $item) {
-            if (!$this->save($item)) {
+        if (empty($this->queueSaved)) {
+            return false;
+        }
+
+        foreach ($this->queueSaved as $cacheItem) {
+            if (!$this->save($cacheItem)) {
                 return false;
             }
         }
@@ -103,8 +102,22 @@ class CacheItemPool implements CacheItemPoolInterface
         return true;
     }
 
-    protected function isItemValidForSave(CacheItemInterface $item)
+    protected function isItemValidForSave(CacheItemInterface $cacheItem)
     {
-        return !$item->isKeyEmpty() && !$item->isValueEmpty();
+        return !$cacheItem->isKeyEmpty() && !$cacheItem->isValueEmpty();
+    }
+
+    protected function initializeItem(CacheItem $cacheItem)
+    {
+        $key = $cacheItem->getKey();
+        include CacheGlobal::getCacheDir() . $key;
+        $expire = $item['expire'];
+        $expireDate = date_create()->setTimestamp($expire);
+
+        if ($expire === null || $cacheItem->expiresAt($expireDate)) {
+            $cacheItem->set($item['value']);
+        } else {
+            $this->deleteItem($key);
+        }
     }
 }
