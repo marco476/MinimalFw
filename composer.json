@@ -1,7 +1,7 @@
 {
     "name": "minimalfw/minimalfw",
     "type": "library",
-    "description": "Minimal framework per piccoli progetti",
+    "description": "PHP performance-oriented framework",
     "keywords": ["minimal","minimal framework"],
     
     "license": "MIT",

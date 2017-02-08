@@ -1,5 +1,5 @@
-# MinimalFw - PHP performance-based framework
-MinimalFw is a small **PHP** performance-based framework for small projects. It work *without any third-library dependency*.
+# MinimalFw - PHP performance-oriented framework
+MinimalFw is a small **PHP** performance-oriented framework for small projects. It work *without any third-library dependency*.
 
 ## Installation
 

@@ -1,11 +1,15 @@
 <?php
 namespace Kernel;
 use Helper\ErrorHelper;
+use Helper\TemplateAbstract;
 
 class Kernel extends Core
 {
     //Name of request URI.
     protected $requestURI;
+
+    //Istance of template engine (if used)
+    protected $templateEngine;
 
     //Kernel Costruct
     public function __construct()
@@ -56,5 +60,23 @@ class Kernel extends Core
         foreach ($viewsList as $view) {
             require_once $this->viewsDirFromRoot . '/' . $view;
         }
+    }
+
+    //Set an istance of template engine passed as argument.
+    public function setTemplateEngine(string $engine, array $options = [])
+    {
+        switch ($engine) {
+            case TemplateAbstract::TWIG:
+                $istance = new \Providers\TemplateEngine\Twig();
+                break;
+            case TemplateAbstract::SMARTY:
+                $istance = new \Providers\TemplateEngine\Smarty();
+                break;
+            default:
+                $istance = null;
+                break;
+        }
+
+        return $this->templateEngine = $istance;
     }
 }
