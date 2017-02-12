@@ -38,7 +38,7 @@ class Kernel extends Core
         $params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
 
         $templateEngine = $this->getEngineForViews();
-        return $controllerInstance->{$action}($params, $templateEngine);
+        return $controllerInstance->{$action}($params, $templateEngine->getEngine());
     }
 
      //Return an instance of controller $controllerName

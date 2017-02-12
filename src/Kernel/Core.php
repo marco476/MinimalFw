@@ -22,7 +22,7 @@ abstract class Core
     }
 
     //Set a provider.
-    public function setProvider(ProvidersInterface $providerInstance, array $options): bool
+    public function setProvider(ProvidersInterface $providerInstance, array $options)
     {
         if (empty($options) || empty($providerInstance->startProvide($options))) {
             return false;

@@ -3,6 +3,9 @@ namespace Providers\TemplateEngine;
 
 class Twig implements EngineInterface
 {
+    protected $variables = array();
+    protected $twigEnvironment = null;
+
     protected $availableOptions = array(
         'debug',
         'charset',
@@ -18,7 +21,7 @@ class Twig implements EngineInterface
         $loader = new \Twig_Loader_Filesystem($pathDir);
         $optionsForTwig = $this->setParameters($options);
 
-        return new \Twig_Environment($loader, $optionsForTwig);
+        return $this->twigEnvironment = new \Twig_Environment($loader, $optionsForTwig);
     }
 
     public function setParameters(array $options): array
@@ -32,5 +35,21 @@ class Twig implements EngineInterface
         }
 
         return $result;
+    }
+
+    public function assign($key, $value)
+    {
+        $this->variables[$key] = $value;
+    }
+
+    public function render($file, array $variables = [])
+    {
+        if (!empty($variables)) {
+            foreach ($variables as $key => $value) {
+                $this->assign($key, $value);
+            }
+        }
+
+        echo $this->twigEnvironment->render($file, $this->variables);
     }
 }
