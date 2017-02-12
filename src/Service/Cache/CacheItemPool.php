@@ -1,5 +1,5 @@
 <?php
-namespace Providers\Cache;
+namespace Service\Cache;
 
 class CacheItemPool implements CacheItemPoolInterface
 {

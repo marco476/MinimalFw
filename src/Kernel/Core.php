@@ -1,22 +1,17 @@
 <?php
 namespace Kernel;
 
-use Kernel\CoreInterface;
+use Providers\ProvidersInterface;
 
-abstract class Core implements CoreInterface
+abstract class Core
 {
     //List of all routes that can match with URI.
     protected $routes = [];
 
-    protected $viewsDirFromRoot;
+    //List of all providers setted
+    protected $providers = array();
 
-    //Core Costruct
-    public function __construct()
-    {
-         $this->viewsDirFromRoot = $_SERVER["DOCUMENT_ROOT"] . '/src/Views';
-    }
-
-    //Setta le rotte implementate.
+    //Set routes.
     public function setRoutes(array $routes)
     {
         foreach ($routes as $singleRoute) {
@@ -24,5 +19,21 @@ abstract class Core implements CoreInterface
                 $this->routes[] = $singleRoute;
             }
         }
+    }
+
+    //Set a provider.
+    public function setProvider(ProvidersInterface $providerInstance, array $options): bool
+    {
+        if (empty($options) || empty($providerInstance->startProvide($options))) {
+            return false;
+        }
+
+        $key = $providerInstance->getClassNameWithoutNamespace();
+        return $this->providers[$key] = $providerInstance;
+    }
+
+    public function getProvider($key)
+    {
+        return !empty($this->providers[$key]) ? $this->providers[$key] : false;
     }
 }

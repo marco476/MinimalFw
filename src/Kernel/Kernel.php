@@ -1,15 +1,13 @@
 <?php
 namespace Kernel;
+
 use Helper\ErrorHelper;
-use Helper\TemplateAbstract;
+use Providers\TemplateEngine\TemplateEngine;
 
 class Kernel extends Core
 {
     //Name of request URI.
     protected $requestURI;
-
-    //Istance of template engine (if used)
-    protected $templateEngine;
 
     //Kernel Costruct
     public function __construct()
@@ -35,48 +33,27 @@ class Kernel extends Core
     //Execute the action of route matched.
     protected function executeAction($route)
     {
-        $controllerIstance = $this->getControllerIstance($route['controller']);
+        $controllerInstance = $this->getControllerInstance($route['controller']);
         $action = $route['action'];
         $params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
 
-        $result = $controllerIstance->{$action}($params);
-
-        !empty($result) ?
-            $this->requireViews($result) :
-                ErrorHelper::setError(ErrorHelper::CONTROLLER_RETURN_EMPTY_ARRAY, ErrorHelper::FATAL);
+        $templateEngine = $this->getEngineForViews();
+        return $controllerInstance->{$action}($params, $templateEngine);
     }
 
-     //Return an istance of controller $controllerName
-    protected function getControllerIstance(string $controllerName)
+     //Return an instance of controller $controllerName
+    protected function getControllerInstance(string $controllerName)
     {
         $fullControllerName = '\\Controller\\' . $controllerName;
 
         return new $fullControllerName;
     }
 
-    //Require views returned from action by FIFO running.
-    protected function requireViews(array $viewsList)
+    //Return a TemplateEngine istance for the action's controller
+    protected function getEngineForViews()
     {
-        foreach ($viewsList as $view) {
-            require_once $this->viewsDirFromRoot . '/' . $view;
-        }
-    }
+        $templateEngine = $this->getProvider('TemplateEngine');
 
-    //Set an istance of template engine passed as argument.
-    public function setTemplateEngine(string $engine, array $options = [])
-    {
-        switch ($engine) {
-            case TemplateAbstract::TWIG:
-                $istance = new \Providers\TemplateEngine\Twig();
-                break;
-            case TemplateAbstract::SMARTY:
-                $istance = new \Providers\TemplateEngine\Smarty();
-                break;
-            default:
-                $istance = null;
-                break;
-        }
-
-        return $this->templateEngine = $istance;
+        return !empty($templateEngine) ? $templateEngine : $this->setProvider(new TemplateEngine(), array('name' => TemplateEngine::BASE));
     }
 }
