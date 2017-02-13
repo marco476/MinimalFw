@@ -6,9 +6,9 @@ use Providers\ProvidersInterface;
 abstract class Core
 {
     //List of all routes that can match with URI.
-    protected $routes = [];
+    protected $routes = array();
 
-    //List of all providers setted
+    //List of all providers setted.
     protected $providers = array();
 
     //Set routes.

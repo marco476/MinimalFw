@@ -33,24 +33,17 @@ class Kernel extends Core
     //Execute the action of route matched.
     protected function executeAction($route)
     {
-        $controllerInstance = $this->getControllerInstance($route['controller']);
+        $controllerName = '\\Controller\\' . $route['controller'];
+        $controller = new $controllerName;
         $action = $route['action'];
         $params = !empty($route['params']) && is_array($route['params']) ? $route['params'] : [];
 
-        $templateEngine = $this->getEngineForViews();
-        return $controllerInstance->{$action}($params, $templateEngine->getEngine());
-    }
-
-     //Return an instance of controller $controllerName
-    protected function getControllerInstance(string $controllerName)
-    {
-        $fullControllerName = '\\Controller\\' . $controllerName;
-
-        return new $fullControllerName;
+        $templateEngine = $this->getTemplateEngine();
+        return $controller->{$action}($params, $templateEngine->getEngine());
     }
 
     //Return a TemplateEngine istance for the action's controller
-    protected function getEngineForViews()
+    protected function getTemplateEngine()
     {
         $templateEngine = $this->getProvider('TemplateEngine');
 
