@@ -16,7 +16,7 @@ class TemplateEngine implements ProvidersInterface
 
     public function __construct()
     {
-        $this->listTemplateEngine = array(self::TWIG, self::SMARTY);
+        $this->listTemplateEngine = array(self::TWIG, self::SMARTY, self::BASE);
         $this->pathDir = $_SERVER["DOCUMENT_ROOT"] . '/../src/Views';
     }
 

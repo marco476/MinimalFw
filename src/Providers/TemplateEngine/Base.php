@@ -1,39 +1,21 @@
 <?php
 namespace Providers\TemplateEngine;
 
-class Twig implements EngineInterface
+class Base implements EngineInterface
 {
     protected $variables = array();
-    protected $twigEnvironment = null;
-
-    protected $availableOptions = array(
-        'debug',
-        'charset',
-        'cache',
-        'auto_reload',
-        'strict_variables',
-        'autoescape',
-        'optimizations'
-    );
+    protected $pathDir;
 
     public function __construct(string $pathDir, array $options)
     {
-        $loader = new \Twig_Loader_Filesystem($pathDir);
-        $optionsForTwig = $this->setParameters($options);
-        $this->twigEnvironment = new \Twig_Environment($loader, $optionsForTwig);
+        $this->pathDir = $pathDir;
+        //$this->setParameters($options);
     }
 
+    //Not exist parameters for Base Template engine at the moment.
     public function setParameters(array $options): array
     {
-        $result = array();
-
-        foreach ($options as $key => $option) {
-            if (in_array($key, $this->availableOptions)) {
-                $result[$key] = $option;
-            }
-        }
-
-        return $result;
+        return array();
     }
 
     public function assign($key, $value)
@@ -44,18 +26,26 @@ class Twig implements EngineInterface
     public function render($file, array $variables = [])
     {
         $this->insertVariables($variables);
+        $this->createDefinesFromVariables();
 
         if (is_array($file)) {
             $this->multiRender($file);
         } else {
-            echo $this->twigEnvironment->render($file, $this->variables);
+            require_once $this->pathDir . '/' . $file;
         }
     }
 
     protected function multiRender(array $files)
     {
         foreach ($files as $file) {
-            echo $this->twigEnvironment->render($file, $this->variables);
+            require_once $this->pathDir . '/' . $file;
+        }
+    }
+
+    protected function createDefinesFromVariables()
+    {
+        foreach ($this->variables as $key => $value) {
+            define($key, $value);
         }
     }
 
