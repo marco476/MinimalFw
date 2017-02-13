@@ -7,8 +7,8 @@ interface ProvidersInterface
     public function startProvide(array $options);
 
     //Check required parameters for start di provide
-    public function checkRequiredParameters(array $options): bool;
+    public function checkRequiredParameters(array $options);
 
     //Return the name of class without namespace
-    public function getClassNameWithoutNamespace(): string;
+    public function getClassNameWithoutNamespace();
 }

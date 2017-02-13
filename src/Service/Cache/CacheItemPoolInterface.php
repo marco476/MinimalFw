@@ -3,7 +3,7 @@ namespace Service\Cache;
 
 interface CacheItemPoolInterface
 {
-    public function getItem($key): CacheItem;
+    public function getItem($key);
     public function getItems(array $keys = array());
     public function hasItem($key);
     public function clear();

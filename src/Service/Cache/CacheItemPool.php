@@ -5,7 +5,8 @@ class CacheItemPool implements CacheItemPoolInterface
 {
     protected $queueSaved = array();
 
-    public function getItem($key): CacheItem
+    //Must return an istance of CacheItem
+    public function getItem($key)
     {
         $cacheItem = new CacheItem();
         $cacheItem->setKey($key);

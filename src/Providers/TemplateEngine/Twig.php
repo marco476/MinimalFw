@@ -23,7 +23,7 @@ class Twig implements EngineInterface
         $this->twigEnvironment = new \Twig_Environment($loader, $optionsForTwig);
     }
 
-    public function setParameters(array $options): array
+    public function setParameters(array $options)
     {
         $result = array();
 
@@ -41,7 +41,7 @@ class Twig implements EngineInterface
         $this->variables[$key] = $value;
     }
 
-    public function render($file, array $variables = [])
+    public function render($file, array $variables = array())
     {
         $this->insertVariables($variables);
 

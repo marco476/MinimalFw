@@ -13,7 +13,7 @@ class Base implements EngineInterface
     }
 
     //Not exist parameters for Base Template engine at the moment.
-    public function setParameters(array $options): array
+    public function setParameters(array $options)
     {
         return array();
     }
@@ -23,7 +23,7 @@ class Base implements EngineInterface
         $this->variables[$key] = $value;
     }
 
-    public function render($file, array $variables = [])
+    public function render($file, array $variables = array())
     {
         $this->insertVariables($variables);
         $this->createDefinesFromVariables();

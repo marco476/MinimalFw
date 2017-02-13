@@ -54,12 +54,12 @@ class TemplateEngine implements ProvidersInterface
         return $this->engine;
     }
 
-    public function getClassNameWithoutNamespace(): string
+    public function getClassNameWithoutNamespace()
     {
         return explode('\\', __CLASS__)[2];
     }
 
-    public function checkRequiredParameters(array $options): bool
+    public function checkRequiredParameters(array $options)
     {
         return !empty($options['name']);
     }
