@@ -7,7 +7,6 @@ class Smarty implements EngineInterface
     protected $smartyIstance = null;
 
     protected $availableOptions = array(
-        'config_dir',
         'caching'
     );
 
