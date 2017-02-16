@@ -66,8 +66,7 @@ class TemplateEngine implements ProvidersInterface
 
     protected function createDir()
     {
-        $dir = mkdir($this->pathDir);
-        if ($dir == false) {
+        if (mkdir($this->pathDir) == false) {
             ErrorHelper::setError(ErrorHelper::DIR_VIEWS_NOT_CREATE, ErrorHelper::FATAL);
         }
 
