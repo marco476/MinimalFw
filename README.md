@@ -44,14 +44,14 @@ The **setRoutes** Kernel's method accept an array of routes, that can be matched
 
 ## Providers
 
-#### Template Engine
+### Template Engine
 
 The **setProvider** Kernel's method set a provider. The only one provider that (for now!) you can use is *TemplateEngine*. You can pass an istance
 of *TemplateEngine* as first argument, and an array of options as second argument. This array must include the **name** key, that specific the name engine:
 
-* Twig => TemplateEngine::TWIG
-* Smarty => TemplateEngine::SMARTY
-* Base (default, you can not set) => TemplateEngine::BASE
+* Twig           - TemplateEngine::TWIG
+* Smarty         - TemplateEngine::SMARTY
+* Base (default) - TemplateEngine::BASE
 
 In Twig (only, at the moment) you can set another keys in the options array ([see the complete list](http://twig.sensiolabs.org/doc/2.x/api.html#environment-options)):
 * debug
@@ -60,15 +60,15 @@ In Twig (only, at the moment) you can set another keys in the options array ([se
 * autoescape
 * optimizations
 
-You can also use the key **cache** and set it to true or false, for enable or disable cache in Twig or Smarty.
+You can also use the key **cache** and set it to true or false, for enable or disable cache in Twig and Smarty.
 
 > Note: for Smarty, the config directory is in *src/Views/smartyConfig*
 
 ## Controller and Views
 
-All *controller* MUST be insert in **src/Controller** and use [PSR-4](http://www.php-fig.org/psr/psr-4/) rules.
+All *controller* must be insert in **src/Controller** and use [PSR-4](http://www.php-fig.org/psr/psr-4/) rules.
 
-All *views* MUST be insert in **src/Views**.
+All *views* must be insert in **src/Views**.
 
 See an example for create a controller:
 
