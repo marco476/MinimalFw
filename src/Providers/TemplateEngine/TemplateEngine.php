@@ -30,8 +30,11 @@ class TemplateEngine implements ProvidersInterface
             $this->createDir();
         }
 
-        $nameEngine = in_array($options['name'], $this->listTemplateEngine) ? ('\\Providers\\TemplateEngine\\' . $options['name']) : 'Base';
-        $instanceEngine = new $nameEngine($this->pathDir, $options);
+        $namespaceEngine = '\\Providers\\TemplateEngine\\Engine\\';
+        $nameEngine = in_array($options['name'], $this->listTemplateEngine) ? $options['name'] : 'Base';
+        $nameComplete = $namespaceEngine . $nameEngine;
+        
+        $instanceEngine = new $nameComplete($this->pathDir, $options);
 
         return $this->engine = $instanceEngine;
     }

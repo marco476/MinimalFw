@@ -1,16 +1,15 @@
 <?php
-namespace Providers\TemplateEngine;
+namespace Providers\TemplateEngine\Engine;
 
 class Twig implements EngineInterface
 {
     protected $variables = array();
     protected $twigEnvironment = null;
+    protected $pathDir = null;
 
     protected $availableOptions = array(
         'debug',
         'charset',
-        'cache',
-        'auto_reload',
         'strict_variables',
         'autoescape',
         'optimizations'
@@ -18,8 +17,11 @@ class Twig implements EngineInterface
 
     public function __construct(string $pathDir, array $options)
     {
+        $this->pathDir = $pathDir;
+
         $loader = new \Twig_Loader_Filesystem($pathDir);
         $optionsForTwig = $this->setParameters($options);
+
         $this->twigEnvironment = new \Twig_Environment($loader, $optionsForTwig);
     }
 
@@ -33,6 +35,11 @@ class Twig implements EngineInterface
             }
         }
 
+        //Check cache 
+        if(!empty($options['cache'])){
+            $result['cache'] = $this->pathDir . '/cache/twigCache';
+        }
+
         return $result;
     }
 
@@ -43,7 +50,7 @@ class Twig implements EngineInterface
 
     public function render($file, array $variables = array())
     {
-        $this->insertVariables($variables);
+        $this->multiAssign($variables);
 
         if (is_array($file)) {
             $this->multiRender($file);
@@ -59,7 +66,7 @@ class Twig implements EngineInterface
         }
     }
 
-    protected function insertVariables(array $variables)
+    protected function multiAssign(array $variables)
     {
         if (!empty($variables)) {
             foreach ($variables as $key => $value) {

@@ -15,73 +15,89 @@ Configure your front-controller page (assumed *index.php*) it's extreme simple:
 
 ```PHP
 <?php
-//Into web/index.php
+//Into web/index.php.
 require_once __DIR__ . '/../vendor/autoload.php';
 use Kernel\Kernel;
 
 $kernel = new Kernel();
 
+//Set TemplateEngine provider. See next chapter.
+$kernel->setProvider(new TemplateEngine(), array(
+    'name' => TemplateEngine::TWIG,
+    'debug' => true,
+    'cache' => false
+));
+
 //Set your routes!
 $kernel->setRoutes([
-        'homepage' => [
-            'route' => '/^\/$/',
-            'controller' => 'IndexController',
-            'action' => 'showHomeAction',
-            'params' => []
+        'homepage' => [ //Name route
+            'route' => '/^\/$/', //Regular Expression for match URI
+            'controller' => 'IndexController', //Controller name invoked if match
+            'action' => 'showHomeAction', //Action's controller invoked if match
+            'params' => [] //Extra params for action
         ]
 ]);
 
 $kernel->start();
 ```
 The **setRoutes** Kernel's method accept an array of routes, that can be matched with an URI by regular expression setted.
-The format is here:
 
-```PHP
-$kernel->setRoutes([
-        'ROUTE_1' => [
-            'route' => '/REGULAR EXPRESSION 1/',
-            'controller' => 'NAME CONTROLLER CALL AFTER MATCHED URI',
-            'action' => 'NAME ACTION (in Controller) CALL AFTER MATCHED URI',
-            'params' => [] //Array of extra parameters
-        ],
-        'ROUTE_2' => [
-            ...
-        ],
-]);
-```
+## Providers
+
+#### Template Engine
+
+The **setProvider** Kernel's method set a provider. The only one provider that (for now!) you can use is *TemplateEngine*. You can pass an istance
+of *TemplateEngine* as first argument, and an array of options as second argument. This array must include the **name** key, that specific the name engine:
+
+* Twig => TemplateEngine::TWIG
+* Smarty => TemplateEngine::SMARTY
+* Base (default, you can not set) => TemplateEngine::BASE
+
+In Twig (only, at the moment) you can set another keys in the options array ([see the complete list](http://twig.sensiolabs.org/doc/2.x/api.html#environment-options)):
+* debug
+* charset
+* strict_variables
+* autoescape
+* optimizations
+
+You can also use the key **cache** and set it to true or false, for enable or disable cache in Twig or Smarty.
+
+> Note: for Smarty, the config directory is in *src/Views/smartyConfig*
 
 ## Controller and Views
 
-All *controller* MUST be insert in **src/Controller** and use *PSR-4* rules.
+All *controller* MUST be insert in **src/Controller** and use [PSR-4](http://www.php-fig.org/psr/psr-4/) rules.
+
 All *views* MUST be insert in **src/Views**.
 
 See an example for create a controller:
 
 ```PHP
 <?php
-// src/Controller/IndexController.php
-
 namespace Controller;
+use Providers\TemplateEngine\Engine\EngineInterface;
 
 class IndexController
 {
-    public function showHomeAction(array $params): array
+    //$params is setting by route settings. 
+    //$template is a template engine.
+    public function showHomeAction(array $params, EngineInterface $template)
     {
-        //Views included with FIFO approach
-        return [
-            'common/html/open-page.html',
-            'homepage/html/head.php',
-            'homepage/html/body.php',
-            'common/html/footer.php',
-            'common/html/close-page.html',
-        ];
+        $template->assign('friend', array(
+            'name'      => 'Marco',
+            'gender'    => 'male'
+        ));
+
+        $template->render('test.twig'); //Single render
+        $template->render(array('primo.twig', 'secondo.twig')); //Multi render
     }
 }
-```
 
-Every controller MUST return an array with name of views, that kernel will include with FIFO approach.
-In the last example, *common/html/open-page.html* will be the first include and *common/html/close-page.html* the last.
-For detail, see [PSR-4 documentation](http://www.php-fig.org/psr/psr-4/)
+```
+A controller have two arguments: an array of options, setted by setRoutes for any route, and a instance
+of template engine. Whether template engine you use, you can use a **assign** method for assign variables
+from PHP to template, and **render** method, for view one (as a string) or multi (as an array, included with FIFO
+approach) templates.
 
 ## Filesystem Cache
 The filesystem cache is quickly and simply, and is implemented with *PSR-6* directive.
@@ -110,7 +126,7 @@ if ($itemCache->isHit()) {
 
 For detail, see [PSR-6 documentation](http://www.php-fig.org/psr/psr-6/)
 
-## SERVER WEB
+## Server web
 For enable the front-controller and redirect all URL on it, you must change your web server's configure.
 With Apache, you can use a *mod_rewrite* module for rewrite all URL and redirect in your front-controller:
 

@@ -1,10 +1,8 @@
 <?php
-namespace Providers\TemplateEngine;
+namespace Providers\TemplateEngine\Engine;
 
 interface EngineInterface
 {
-    //Set parameters for template
-    public function setParameters(array $options);
     //Transfer a variable (key, value) to template
     public function assign($key, $value);
     //Render a template

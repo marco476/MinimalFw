@@ -1,35 +1,32 @@
 <?php
-namespace Providers\TemplateEngine;
+namespace Providers\TemplateEngine\Engine;
 
 class Smarty implements EngineInterface
 {
     protected $smartyData = null;
     protected $smartyIstance = null;
-
-    protected $availableOptions = array(
-        'caching'
-    );
+    protected $pathDir = null;
 
     public function __construct(string $pathDir, array $options)
     {
+        $this->pathDir = $pathDir;
         $this->smartyIstance = new \Smarty();
         $this->smartyIstance->setTemplateDir($pathDir)
-                            ->setCompileDir($pathDir . '/templace_compiled')
-                            ->setCacheDir($pathDir . '/template_cache')
-                            ->setConfigDir($pathDir . '/config');
+                            ->setCompileDir($pathDir . '/smartyCompiled')
+                            ->setConfigDir($pathDir . '/smartyConfig');
 
+        $this->setCache(!empty($options['cache']));
         $this->smartyData = new \Smarty_Data();
-        $this->setParameters($options);
     }
 
-    public function setParameters(array $options)
+    //Set cache
+    protected function setCache(bool $cache)
     {
-        foreach ($options as $key => $option) {
-            if (in_array($key, $this->availableOptions)) {
-                $camelCaseKey = 'set' . $this->getCamelCase($key);
-                $this->smartyIstance->{$camelCaseKey}($option);
-            }
-        }
+        if(!$cache) {
+            return false;
+        }  
+
+        $this->smartyIstance->setCacheDir($pathDir . '/cache/smartyCache');
     }
 
     public function assign($key, $value)
@@ -39,7 +36,7 @@ class Smarty implements EngineInterface
 
     public function render($file, array $variables = array())
     {
-        $this->insertVariables($variables);
+        $this->multiAssign($variables);
 
         if (is_array($file)) {
             $this->multiRender($file);
@@ -55,20 +52,12 @@ class Smarty implements EngineInterface
         }
     }
 
-    protected function insertVariables(array $variables)
+    protected function multiAssign(array $variables)
     {
         if (!empty($variables)) {
             foreach ($variables as $key => $value) {
                 $this->smartyData->assign($key, $value);
             }
         }
-    }
-
-    //Get a camel case version of $key.
-    protected function getCamelCase($key)
-    {
-        return preg_replace_callback('/(^(\w){1})(.*)_(\w{1})(.*+)/', function ($match) {
-            return strtoupper($match[1]) . $match[3] . strtoupper($match[4]) . $match[5];
-        }, $key);
     }
 }

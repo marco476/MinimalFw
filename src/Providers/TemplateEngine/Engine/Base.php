@@ -1,5 +1,5 @@
 <?php
-namespace Providers\TemplateEngine;
+namespace Providers\TemplateEngine\Engine;
 
 class Base implements EngineInterface
 {
