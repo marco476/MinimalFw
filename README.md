@@ -100,31 +100,7 @@ from PHP to template, and **render** method, for view one (as a string) or multi
 approach) templates.
 
 ## Filesystem Cache
-The filesystem cache is quickly and simply, and is implemented with *PSR-6* directive.
-See an example:
-
-```PHP
-use \Providers\Cache\CacheItemPool;
-
-$itemPool = new CacheItemPool();
-$itemCache = $itemPool->getItem('myArray');
-
-if ($itemCache->isHit()) {
-    return $itemCache->get();
-} else {
-    $value = array(
-        'name'      => 'Marco',
-        'friends'   => array('Paolo','Luca')
-    );
-
-    $itemCache->set($value);
-    $itemPool->save($itemCache);
-
-    return $value;
-}
-```
-
-For detail, see [PSR-6 documentation](http://www.php-fig.org/psr/psr-6/)
+**MinimalFw** implements [minimalfw/filesystemCache](https://github.com/marco476/filesystem-cache) repository for filesystem cache.
 
 ## Server web
 For enable the front-controller and redirect all URL on it, you must change your web server's configure.
