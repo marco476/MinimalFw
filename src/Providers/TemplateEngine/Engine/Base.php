@@ -6,16 +6,9 @@ class Base implements EngineInterface
     protected $variables = array();
     protected $pathDir;
 
-    public function __construct(string $pathDir, array $options)
+    public function __construct($pathDir, array $options)
     {
         $this->pathDir = $pathDir;
-        //$this->setParameters($options);
-    }
-
-    //Not exist parameters for Base Template engine at the moment.
-    public function setParameters(array $options)
-    {
-        return array();
     }
 
     public function assign($key, $value)
@@ -25,7 +18,7 @@ class Base implements EngineInterface
 
     public function render($file, array $variables = array())
     {
-        $this->insertVariables($variables);
+        $this->multiAssign($variables);
         $this->createDefinesFromVariables();
 
         if (is_array($file)) {
@@ -49,7 +42,7 @@ class Base implements EngineInterface
         }
     }
 
-    protected function insertVariables(array $variables)
+    protected function multiAssign(array $variables)
     {
         if (!empty($variables)) {
             foreach ($variables as $key => $value) {

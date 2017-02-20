@@ -7,7 +7,7 @@ class Smarty implements EngineInterface
     protected $smartyIstance = null;
     protected $pathDir = null;
 
-    public function __construct(string $pathDir, array $options)
+    public function __construct($pathDir, array $options)
     {
         $this->pathDir = $pathDir;
         $this->smartyIstance = new \Smarty();
@@ -19,8 +19,8 @@ class Smarty implements EngineInterface
         $this->smartyData = new \Smarty_Data();
     }
 
-    //Set cache
-    protected function setCache(bool $cache)
+    //Set cache if relative parameter is enabled.
+    protected function setCache($cache)
     {
         if(!$cache) {
             return false;

@@ -15,14 +15,12 @@ class Twig implements EngineInterface
         'optimizations'
     );
 
-    public function __construct(string $pathDir, array $options)
+    public function __construct($pathDir, array $options)
     {
         $this->pathDir = $pathDir;
 
         $loader = new \Twig_Loader_Filesystem($pathDir);
-        $optionsForTwig = $this->setParameters($options);
-
-        $this->twigEnvironment = new \Twig_Environment($loader, $optionsForTwig);
+        $this->twigEnvironment = new \Twig_Environment($loader, $this->setParameters($options));
     }
 
     public function setParameters(array $options)
@@ -35,7 +33,7 @@ class Twig implements EngineInterface
             }
         }
 
-        //Check cache 
+        //Check cache paramter.
         if(!empty($options['cache'])){
             $result['cache'] = $this->pathDir . '/cache/twigCache';
         }
