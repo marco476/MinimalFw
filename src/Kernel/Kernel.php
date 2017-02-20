@@ -2,12 +2,19 @@
 namespace Kernel;
 
 use Helper\ErrorHelper;
+use Providers\ProvidersInterface;
 use Providers\TemplateEngine\TemplateEngine;
 
-class Kernel extends Core
+class Kernel
 {
     //Name of request URI.
     protected $requestURI;
+
+    //List of all routes that can match with URI.
+    protected $routes = array();
+
+    //List of all providers setted.
+    protected $providers = array();
 
     //Kernel Costruct
     public function __construct()
@@ -15,8 +22,17 @@ class Kernel extends Core
         $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
     }
 
-    //Find if URI is in routes setted.
-    //If true, execute action.
+    //Set routes
+    public function setRoutes(array $routes)
+    {
+        foreach ($routes as $singleRoute) {
+            if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
+                $this->routes[] = $singleRoute;
+            }
+        }
+    }
+
+    //Find if URI is in routes setted.If true, execute action.
     public function start()
     {
         if (empty($this->routes)) {
@@ -40,6 +56,23 @@ class Kernel extends Core
 
         $templateEngine = $this->getTemplateEngine();
         return $controller->{$action}($params, $templateEngine->getEngine());
+    }
+
+    //Set a provider.
+    public function setProvider(ProvidersInterface $providerInstance, array $options)
+    {
+        if (empty($options) || empty($providerInstance->startProvide($options))) {
+            return false;
+        }
+
+        $key = $providerInstance->getClassNameWithoutNamespace();
+        return $this->providers[$key] = $providerInstance;
+    }
+
+    //Get a provider indicated on key.
+    public function getProvider($key)
+    {
+        return !empty($this->providers[$key]) ? $this->providers[$key] : false;
     }
 
     //Return a TemplateEngine istance for the action's controller
