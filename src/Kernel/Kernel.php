@@ -16,20 +16,24 @@ class Kernel
     //List of all providers setted.
     protected $providers = array();
 
-    //Kernel Costruct
+    //Kernel Costruct.
     public function __construct()
     {
         $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
     }
 
-    //Set routes
+    //Set routes.
     public function setRoutes(array $routes)
     {
+        $aRoutes = array();
+        
         foreach ($routes as $singleRoute) {
             if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
-                $this->routes[] = $singleRoute;
+                $aRoutes[] = $singleRoute;
             }
         }
+
+        return $this->routes = $aRoutes;
     }
 
     //Find if URI is in routes setted.If true, execute action.
