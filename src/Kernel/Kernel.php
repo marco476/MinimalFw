@@ -26,7 +26,7 @@ class Kernel
         $Routing = new Routing();
         $Routing->readFromYml();
 
-        foreach ($this->routes as $route) {
+        foreach ($Routing->getRoutes() as $route) {
             if (preg_match($route['route'], $this->requestURI)) {
                 $this->executeAction($route);
             }

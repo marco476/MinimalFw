@@ -32,6 +32,10 @@ class Routing
                 $this->setRoutes($routesFromYml);
     }
 
+    public function getRoutes(){
+        return $this->routes;
+    }
+
     //Set routes.
     protected function setRoutes(array $routesFromYml)
     {
