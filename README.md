@@ -28,19 +28,20 @@ $kernel->setProvider(new TemplateEngine(), array(
     'cache' => false
 ));
 
-//Set your routes!
-$kernel->setRoutes([
-        'homepage' => [ //Name route
-            'route' => '/^\/$/', //Regular Expression for match URI
-            'controller' => 'IndexController', //Controller name invoked if match
-            'action' => 'showHomeAction', //Action's controller invoked if match
-            'params' => [] //Extra params for action
-        ]
-]);
-
 $kernel->start();
 ```
-The **setRoutes** Kernel's method accept an array of routes, that can be matched with an URI by regular expression setted.
+
+## Routing
+You can set your routes in YML config file named **routes.yml** into **config** directory (from the document root).
+See and example:
+
+```YML
+homepage: #Name route
+    route:      '/^\/$/' #RE for match URI
+    controller: 'IndexController' #Controller name invoked if match
+    action:     'showHomeAction' #Action's controller invoked if match
+    params:     ['myFirstParam', 'sendMe'] #Extra params
+```
 
 ## Providers
 
