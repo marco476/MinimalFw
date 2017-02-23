@@ -15,16 +15,19 @@ class Routing
     protected $routes = array();
 
     //Routing constructor.
-    public function __construct()
+    public function __construct($configPath = false, $nameFile = false)
     {
-        $this->configPath = $_SERVER["DOCUMENT_ROOT"] . '/../config';
-        $this->routesYmlFile = $this->configPath . '/routes.yml';
+        $this->configPath = !empty($configPath) ? $configPath : $_SERVER["DOCUMENT_ROOT"] . '/../config';
+        $this->routesYmlFile = !empty($nameFile) ? $nameFile : $this->configPath . '/routes.yml';
     }
 
-    //Read routes from a YML configuration file and
-    //set in $routes protected array.
-    public function readFromYml()
+    //Set routes from a YML configuration file.
+    public function setFromYml()
     {
+        if (!empty($this->routes)) {
+            return false;
+        }
+
         $routesFromYml = yaml_parse_file($this->routesYmlFile);
 
         empty($routesFromYml) ?
@@ -32,17 +35,23 @@ class Routing
                 $this->setRoutes($routesFromYml);
     }
 
-    public function getRoutes(){
-        return $this->routes;
-    }
-
-    //Set routes.
-    protected function setRoutes(array $routesFromYml)
+    //Set routes into $this->routes variable from $routes array.
+    public function setRoutes(array $routes)
     {
-        foreach ($routesFromYml as $route) {
+        if (empty($routes) || !empty($this->routes)) {
+            return false;
+        }
+
+        foreach ($routes as $route) {
             if (!empty($route['route']) && !empty($route['controller']) && !empty($route['action'])) {
                 $this->routes[] = $route;
             }
         }
+    }
+
+    //Return all routes setted.
+    public function getRoutes()
+    {
+        return $this->routes;
     }
 }
