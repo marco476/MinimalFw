@@ -1,0 +1,5 @@
+homepage:
+    route:      '/^\/$/'
+    controller: 'IndexController'
+    action:     'showHomeAction'
+    params:     ['myFirstParameter', 'sendMe']

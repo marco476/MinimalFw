@@ -57,7 +57,7 @@ class TemplateEngine implements ProvidersInterface
         return $this->engine;
     }
 
-    public function getClassNameWithoutNamespace()
+    public function getClassName()
     {
         return explode('\\', __CLASS__)[2];
     }

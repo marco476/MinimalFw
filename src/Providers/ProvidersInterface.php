@@ -10,5 +10,5 @@ interface ProvidersInterface
     public function checkRequiredParameters(array $options);
 
     //Return the name of class without namespace
-    public function getClassNameWithoutNamespace();
+    public function getClassName();
 }

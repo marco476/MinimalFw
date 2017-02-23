@@ -1,6 +1,7 @@
 <?php
 namespace Kernel;
 
+use Kernel\Routing;
 use Helper\ErrorHelper;
 use Providers\ProvidersInterface;
 use Providers\TemplateEngine\TemplateEngine;
@@ -9,9 +10,6 @@ class Kernel
 {
     //Name of request URI.
     protected $requestURI;
-
-    //List of all routes that can match with URI.
-    protected $routes = array();
 
     //List of all providers setted.
     protected $providers = array();
@@ -22,26 +20,11 @@ class Kernel
         $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
     }
 
-    //Set routes.
-    public function setRoutes(array $routes)
-    {
-        $aRoutes = array();
-        
-        foreach ($routes as $singleRoute) {
-            if (!empty($singleRoute['route']) && !empty($singleRoute['controller']) && !empty($singleRoute['action'])) {
-                $aRoutes[] = $singleRoute;
-            }
-        }
-
-        return $this->routes = $aRoutes;
-    }
-
     //Find if URI is in routes setted.If true, execute action.
     public function start()
     {
-        if (empty($this->routes)) {
-            ErrorHelper::setError(ErrorHelper::EMPTY_OR_ERROR_ROUTER, ErrorHelper::FATAL);
-        }
+        $Routing = new Routing();
+        $Routing->readFromYml();
 
         foreach ($this->routes as $route) {
             if (preg_match($route['route'], $this->requestURI)) {
@@ -69,7 +52,7 @@ class Kernel
             return false;
         }
 
-        $key = $providerInstance->getClassNameWithoutNamespace();
+        $key = $providerInstance->getClassName();
         return $this->providers[$key] = $providerInstance;
     }
 
