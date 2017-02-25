@@ -1,36 +1,27 @@
 <?php
 namespace Kernel;
 
-use Kernel\Routing;
-use Helper\ErrorHelper;
-use Providers\ProvidersInterface;
+use Routing\Routing;
+use Providers\AdminProviders;
 use Providers\TemplateEngine\TemplateEngine;
 
 class Kernel
 {
-    //Name of request URI.
-    protected $requestURI;
-
-    //List of all providers setted.
-    protected $providers = array();
-
-    //Kernel Costruct.
-    public function __construct()
-    {
-        $this->requestURI = !empty($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-    }
-
-    //Find if URI is in routes setted.If true, execute action.
+    //MinimalFw start elaboration!
     public function start()
     {
         $Routing = new Routing();
-        $Routing->setFromYml();
+        $routeMatched = $Routing->setRoutesFromYml($_SERVER["DOCUMENT_ROOT"] . '/../config', 'routes.yml')->matchRoute();
 
-        foreach ($Routing->getRoutes() as $route) {
-            if (preg_match($route['route'], $this->requestURI)) {
-                $this->executeAction($route);
-            }
+        if (empty($routeMatched)) {
+            trigger_error("The URI not matched with routes setted.", E_USER_ERROR);
         }
+
+        if (empty($routeMatched['controller']) || empty($routeMatched['action'])) {
+            trigger_error("The URI matched with a route setted, but route not have setted a Controller or Action key.", E_USER_ERROR);
+        }
+
+        return $this->executeAction($routeMatched);
     }
 
     //Execute the action of route matched.
@@ -45,28 +36,11 @@ class Kernel
         return $controller->{$action}($params, $templateEngine->getEngine());
     }
 
-    //Set a provider.
-    public function setProvider(ProvidersInterface $providerInstance, array $options)
-    {
-        if (empty($options) || empty($providerInstance->startProvide($options))) {
-            return false;
-        }
-
-        $key = $providerInstance->getClassName();
-        return $this->providers[$key] = $providerInstance;
-    }
-
-    //Get a provider indicated on key.
-    public function getProvider($key)
-    {
-        return !empty($this->providers[$key]) ? $this->providers[$key] : false;
-    }
-
     //Return a TemplateEngine istance for the action's controller
     protected function getTemplateEngine()
     {
-        $templateEngine = $this->getProvider('TemplateEngine');
+        $templateEngine = AdminProviders::getProvider('TemplateEngine');
 
-        return !empty($templateEngine) ? $templateEngine : $this->setProvider(new TemplateEngine(), array('name' => TemplateEngine::BASE));
+        return !empty($templateEngine) ? $templateEngine : AdminProviders::setProvider(new TemplateEngine(), array('name' => TemplateEngine::BASE));
     }
 }
