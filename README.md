@@ -1,5 +1,5 @@
 # MinimalFw - PHP performance-oriented framework
-MinimalFw is a small **PHP** performance-oriented framework for small projects. It work *without any third-library dependency*.
+MinimalFw is a **PHP** performance-oriented framework.
 
 ## Installation
 
@@ -15,55 +15,59 @@ Configure your front-controller page (assumed *index.php*) it's extreme simple:
 
 ```PHP
 <?php
-//Into web/index.php.
+//Into web/index.php
 require_once __DIR__ . '/../vendor/autoload.php';
-use Kernel\Kernel;
 
-$kernel = new Kernel();
+use Kernel\Kernel;
+use Providers\AdminProviders;
+use Providers\TemplateEngine\TemplateEngine;
 
 //Set TemplateEngine provider. See next chapter.
-$kernel->setProvider(new TemplateEngine(), array(
+AdminProviders::setProvider(new TemplateEngine(), array(
     'name' => TemplateEngine::TWIG,
-    'debug' => true,
     'cache' => false
 ));
 
+$kernel = new Kernel();
 $kernel->start();
-```
-
-## Routing
-You can set your routes in YML config file named **routes.yml** into **config** directory (from the document root).
-See and example:
-
-```YML
-homepage: #Name route
-    route:      '/^\/$/' #RE for match URI
-    controller: 'IndexController' #Controller name invoked if match
-    action:     'showHomeAction' #Action's controller invoked if match
-    params:     ['myFirstParam', 'sendMe'] #Extra params
 ```
 
 ## Providers
 
 ### Template Engine
 
-The **setProvider** Kernel's method set a provider. The only one provider that (for now!) you can use is *TemplateEngine*. You can pass an istance
+The **setProvider** AdminProviders's static method set a provider. The only one provider that (for now!) you can use is *TemplateEngine*. You can pass an istance
 of *TemplateEngine* as first argument, and an array of options as second argument. This array must include the **name** key, that specific the name engine:
 
-* Twig           - TemplateEngine::TWIG
-* Smarty         - TemplateEngine::SMARTY
-* Base (default) - TemplateEngine::BASE
+* Twig           - ``` TemplateEngine::TWIG ```
+* Smarty         - ``` TemplateEngine::SMARTY ```
+* Base (default) - ``` TemplateEngine::BASE ```
 
-In Twig (only, at the moment) you can set another keys in the options array ([see the complete list](http://twig.sensiolabs.org/doc/2.x/api.html#environment-options)):
-* debug
-* charset
-* strict_variables
-* autoescape
-* optimizations
+In Twig (only, at the moment) you can set another keys in the options array ([you can see this list](http://twig.sensiolabs.org/doc/2.x/api.html#environment-options)):
+* ``` debug ```
+* ``` charset ```
+* ``` strict_variables ```
+* ``` autoescape ```
+* ``` optimizations ```
 
 You can also use the key **cache** and set it to true or false, for enable or disable cache in Twig and Smarty.
 
 > Note: for Smarty, the config directory is in *src/Views/smartyConfig*
+
+## Routing
+**MinimalFw** implements [marco476/routing-manager](https://github.com/marco476/routing-manager) repository as routing manager.
+For use it, you must set your routes in *YML config file* named **routes.yml** into **config** directory (from the document root).
+
+See an example:
+
+```YML
+ #Into config/routes.yml
+homepage: #Name route
+    route:      / #Route matchable with URI
+    controller: IndexController #Controller invoked if matched
+    action:     showHomeAction #Action invoked if matched
+    params:     [extraParams] #Extra params for controller
+```
 
 ## Controller and Views
 

@@ -14,7 +14,8 @@
     "minimum-stability": "stable",
     "require": {
         "php": ">=5.3.3",
-        "minimalfw/filesystem-cache": ">=1.0.0"
+        "minimalfw/filesystem-cache": ">=1.0.0",
+        "marco476/routing-manager": ">=0.1.0"
     },
      "autoload": {
         "psr-4": {"": "src/"}
