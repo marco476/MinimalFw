@@ -1,3 +1,9 @@
+[![Packagist](https://img.shields.io/packagist/v/minimalfw/minimalfw.svg)](https://packagist.org/packages/minimalfw/minimalfw)
+[![Code Climate](https://codeclimate.com/github/marco476/MinimalFw/badges/gpa.svg)](https://codeclimate.com/github/marco476/MinimalFw)
+[![Issue Count](https://codeclimate.com/github/marco476/MinimalFw/badges/issue_count.svg)](https://codeclimate.com/github/marco476/MinimalFw)
+[![PHP Version](https://img.shields.io/badge/PHP-%3E%3D5.6-blue.svg)](http://php.net/manual/en/migration56.new-features.php)
+[![Packagist](https://img.shields.io/packagist/l/minimalfw/minimalfw.svg)](https://packagist.org/packages/minimalfw/minimalfw)
+
 # MinimalFw - PHP performance-oriented framework
 MinimalFw is a **PHP** performance-oriented framework.
 
@@ -63,7 +69,7 @@ See an example:
 ```YML
  #Into config/routes.yml
 homepage: #Name route
-    route:      / #Route matchable with URI
+    expression: / #Route matchable with URI
     controller: IndexController #Controller invoked if matched
     action:     showHomeAction #Action invoked if matched
     params:     [extraParams] #Extra params for controller
