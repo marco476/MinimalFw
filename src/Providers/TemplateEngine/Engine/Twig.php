@@ -41,6 +41,11 @@ class Twig implements EngineInterface
         return $result;
     }
 
+    public function getTwigEnvironment()
+    {
+        return $this->twigEnvironment;
+    }
+
     public function assign($key, $value)
     {
         $this->variables[$key] = $value;
